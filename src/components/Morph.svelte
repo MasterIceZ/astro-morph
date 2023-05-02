@@ -44,7 +44,7 @@
       wireframe: true,
     });
 
-    loader.load("/model/geo.glb", function (gltf: any) {
+    loader.load("/astro-morph/model/geo.glb", function (gltf: any) {
       const model = gltf.scene;
       platonicSoldis = model.children[0];
 
