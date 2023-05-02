@@ -1,4 +1,4 @@
-name: Build
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -6,24 +6,33 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  main:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository with git
         uses: actions/checkout@v3
-      - name: Set up pnpm
+      - name: Set up PNPM
         uses: pnpm/action-setup@v2
         with:
           version: 8.2.0
-      - name: Build
-        run: |
-          pnpm install
-          pnpm build
-      - name: Deploy
-        uses: s0/git-publish-subdir-action@develop
-        env:
-          REPO: self
-          BRANCH: gh-pages
-          FOLDER: dist
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install, build, and upload site
+        uses: withastro/action@v0
+        with:
+          node-version: 16
+          package-manager: pnpm
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.development.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
